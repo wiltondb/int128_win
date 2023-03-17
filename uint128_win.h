@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef INT128_WIN_H
-#define INT128_WIN_H
+#ifndef INT128_WIN_UINT128_WIN_H
+#define INT128_WIN_UINT128_WIN_H
 
 #include <stdbool.h>
 #include <stdint.h>
@@ -101,8 +101,7 @@ static inline uint128_win uint128_win_add(uint128_win left, uint128_win right) {
   if (low < left.low) {
     high += 1;
   }
-  uint128_win res = { .low = low, .high = high };
-  return res;
+  return (uint128_win) { .low = low, .high = high };
 }
 
 static inline uint128_win uint128_win_subtract(uint128_win left, uint128_win right) {
@@ -111,16 +110,14 @@ static inline uint128_win uint128_win_subtract(uint128_win left, uint128_win rig
   if (low > left.low) {
     high -= 1;
   }
-  uint128_win res = { .low = low, .high = high };
-  return res;
+  return (uint128_win) { .low = low, .high = high };
 }
 
 static inline uint128_win uint128_win_multiply(uint128_win left, uint128_win right) {
   uint64_t carry = 0;
   uint64_t low = _umul128(left.low, right.low, &carry);
   uint64_t high = (left.low * right.high) + (left.high * right.low) + carry;
-  uint128_win res = { .low = low, .high = high };
-  return res;
+  return (uint128_win) { .low = low, .high = high };
 }
 
 static inline uint128_win uint128_win_shift_left(uint128_win value, int amount) {
@@ -198,9 +195,8 @@ static inline uint128_win uint128_win_divide(uint128_win dividend, uint128_win d
 }
 
 
-
 #ifdef __cplusplus
 }
 #endif
 
-#endif // INT128_WIN_H
+#endif // INT128_WIN_UINT128_WIN_H

@@ -15,12 +15,14 @@
  */
 
 #include "uint128_win.h"
-#include <assert.h>
+#include "int128_win.h"
 #include <stdio.h>
+#include <stdlib.h>
 
-#ifdef NDEBUG
-#undef NDEBUG
-#endif // NDEBUG
+#define int128_assert(x) if (!(x)) {\
+  printf("ASSERTION FAILED: line: %d", __LINE__);\
+  exit(1);\
+}
 
 const uint128_win zero = {.low = 0, .high = 0};
 const uint128_win one = {.low = 1, .high = 0};
@@ -134,25 +136,25 @@ void test_from_hex() {
   uint128_win parsed = { .low = 0, .high = 0 };
 
   int err_null_1 = uint128_win_from_hex(NULL, NULL);
-  assert(err_null_1);
+  int128_assert(err_null_1);
   int err_null_2 = uint128_win_from_hex(NULL, &parsed);
-  assert(err_null_2);
+  int128_assert(err_null_2);
   int err_null_3 = uint128_win_from_hex("foo", NULL);
-  assert(err_null_3);
+  int128_assert(err_null_3);
   int err_format = uint128_win_from_hex("ff", &parsed);
-  assert(err_format);
+  int128_assert(err_format);
 
   int err_zero = uint128_win_from_hex("0x00000000000000000000000000000000", &parsed);
-  assert(!err_zero);
-  assert(0 == uint128_win_compare((uint128_win) {.low = 0, .high = 0}, parsed));
+  int128_assert(!err_zero);
+  int128_assert(0 == uint128_win_compare((uint128_win) {.low = 0, .high = 0}, parsed));
 
   int err_one = uint128_win_from_hex("0x00000000000000000000000000000001", &parsed);
-  assert(!err_one);
-  assert(0 == uint128_win_compare((uint128_win) {.low = 1, .high = 0}, parsed));
+  int128_assert(!err_one);
+  int128_assert(0 == uint128_win_compare((uint128_win) {.low = 1, .high = 0}, parsed));
 
   int err_max = uint128_win_from_hex("0xffffffffffffffffffffffffffffffff", &parsed);
-  assert(!err_max);
-  assert(0 == uint128_win_compare((uint128_win) {.low = UINT64_MAX, .high = UINT64_MAX}, parsed));
+  int128_assert(!err_max);
+  int128_assert(0 == uint128_win_compare((uint128_win) {.low = UINT64_MAX, .high = UINT64_MAX}, parsed));
 }
 
 void test_to_hex() {
@@ -160,56 +162,56 @@ void test_to_hex() {
   uint128_win parsed = {.low = 0, .high = 0};
 
   int err_null = uint128_win_to_hex(zero, NULL);
-  assert(err_null);
+  int128_assert(err_null);
 
   int err_zero = uint128_win_to_hex(zero, buf);
-  assert(!err_zero);
+  int128_assert(!err_zero);
   int err_zero_parse = uint128_win_from_hex(buf, &parsed);
-  assert(!err_zero_parse);
-  assert(0 == uint128_win_compare(zero, parsed));
+  int128_assert(!err_zero_parse);
+  int128_assert(0 == uint128_win_compare(zero, parsed));
 
   int err_one = uint128_win_to_hex(one, buf);
-  assert(!err_one);
+  int128_assert(!err_one);
   int err_one_parse = uint128_win_from_hex(buf, &parsed);
-  assert(!err_one_parse);
-  assert(0 == uint128_win_compare(one, parsed));
+  int128_assert(!err_one_parse);
+  int128_assert(0 == uint128_win_compare(one, parsed));
 
   int err_max = uint128_win_to_hex(max, buf);
-  assert(!err_max);
+  int128_assert(!err_max);
   int err_max_parse = uint128_win_from_hex(buf, &parsed);
-  assert(!err_max_parse);
-  assert(0 == uint128_win_compare(max, parsed));
+  int128_assert(!err_max_parse);
+  int128_assert(0 == uint128_win_compare(max, parsed));
 }
 
 void test_compare() {
-  assert(0 == uint128_win_compare(zero, zero));
-  assert(0 == uint128_win_compare(low_max, low_max));
-  assert(0 == uint128_win_compare(max, max));
-  assert(-1 == uint128_win_compare(zero, one));
-  assert(1 == uint128_win_compare(one, zero));
-  assert(-1 == uint128_win_compare(one, low_max));
-  assert(1 == uint128_win_compare(low_max, one));
-  assert(-1 == uint128_win_compare(low_max, high_one));
-  assert(1 == uint128_win_compare(high_one, low_max));
-  assert(-1 == uint128_win_compare(high_one, max));
-  assert(1 == uint128_win_compare(max, high_one));
+  int128_assert(0 == uint128_win_compare(zero, zero));
+  int128_assert(0 == uint128_win_compare(low_max, low_max));
+  int128_assert(0 == uint128_win_compare(max, max));
+  int128_assert(-1 == uint128_win_compare(zero, one));
+  int128_assert(1 == uint128_win_compare(one, zero));
+  int128_assert(-1 == uint128_win_compare(one, low_max));
+  int128_assert(1 == uint128_win_compare(low_max, one));
+  int128_assert(-1 == uint128_win_compare(low_max, high_one));
+  int128_assert(1 == uint128_win_compare(high_one, low_max));
+  int128_assert(-1 == uint128_win_compare(high_one, max));
+  int128_assert(1 == uint128_win_compare(max, high_one));
 }
 
 void test_add() {
-  assert(0 == uint128_win_compare(uint128_win_add(zero, zero), zero));
-  assert(0 == uint128_win_compare(uint128_win_add(zero, one), one));
-  assert(0 == uint128_win_compare(uint128_win_add(one, zero), one));
-  assert(0 == uint128_win_compare(uint128_win_add(one, low_max), high_one));
-  assert(0 == uint128_win_compare(uint128_win_add(max, one), zero));
+  int128_assert(0 == uint128_win_compare(uint128_win_add(zero, zero), zero));
+  int128_assert(0 == uint128_win_compare(uint128_win_add(zero, one), one));
+  int128_assert(0 == uint128_win_compare(uint128_win_add(one, zero), one));
+  int128_assert(0 == uint128_win_compare(uint128_win_add(one, low_max), high_one));
+  int128_assert(0 == uint128_win_compare(uint128_win_add(max, one), zero));
 }
 
 void test_subtract() {
-  assert(0 == uint128_win_compare(uint128_win_subtract(zero, zero), zero));
-  assert(0 == uint128_win_compare(uint128_win_subtract(one, zero), one));
-  assert(0 == uint128_win_compare(uint128_win_subtract(one, one), zero));
-  assert(0 == uint128_win_compare(uint128_win_subtract(high_one, one), low_max));
-  assert(0 == uint128_win_compare(uint128_win_subtract(high_one, low_max), one));
-  assert(0 == uint128_win_compare(uint128_win_subtract(zero, one), max));
+  int128_assert(0 == uint128_win_compare(uint128_win_subtract(zero, zero), zero));
+  int128_assert(0 == uint128_win_compare(uint128_win_subtract(one, zero), one));
+  int128_assert(0 == uint128_win_compare(uint128_win_subtract(one, one), zero));
+  int128_assert(0 == uint128_win_compare(uint128_win_subtract(high_one, one), low_max));
+  int128_assert(0 == uint128_win_compare(uint128_win_subtract(high_one, low_max), one));
+  int128_assert(0 == uint128_win_compare(uint128_win_subtract(zero, one), max));
 }
 
 void test_multiply() {
@@ -218,16 +220,16 @@ void test_multiply() {
   const uint128_win big_res = {.low = 10, .high = 29};
   const uint128_win max_res = {.low = UINT64_MAX - 1, .high = UINT64_MAX};
 
-  assert(0 == uint128_win_compare(uint128_win_multiply(zero, zero), zero));
-  assert(0 == uint128_win_compare(uint128_win_multiply(one, zero), zero));
-  assert(0 == uint128_win_compare(uint128_win_multiply(zero, one), zero));
-  assert(0 == uint128_win_compare(uint128_win_multiply(one, one), one));
-  assert(0 == uint128_win_compare(uint128_win_multiply(two, one), two));
-  assert(0 == uint128_win_compare(uint128_win_multiply(two, two), four));
-  assert(0 == uint128_win_compare(uint128_win_multiply(big1, big2), big_res));
-  assert(0 == uint128_win_compare(uint128_win_multiply(max, zero), zero));
-  assert(0 == uint128_win_compare(uint128_win_multiply(max, one), max));
-  assert(0 == uint128_win_compare(uint128_win_multiply(max, two), max_res));
+  int128_assert(0 == uint128_win_compare(uint128_win_multiply(zero, zero), zero));
+  int128_assert(0 == uint128_win_compare(uint128_win_multiply(one, zero), zero));
+  int128_assert(0 == uint128_win_compare(uint128_win_multiply(zero, one), zero));
+  int128_assert(0 == uint128_win_compare(uint128_win_multiply(one, one), one));
+  int128_assert(0 == uint128_win_compare(uint128_win_multiply(two, one), two));
+  int128_assert(0 == uint128_win_compare(uint128_win_multiply(two, two), four));
+  int128_assert(0 == uint128_win_compare(uint128_win_multiply(big1, big2), big_res));
+  int128_assert(0 == uint128_win_compare(uint128_win_multiply(max, zero), zero));
+  int128_assert(0 == uint128_win_compare(uint128_win_multiply(max, one), max));
+  int128_assert(0 == uint128_win_compare(uint128_win_multiply(max, two), max_res));
 }
 
 void test_divide() {
@@ -235,56 +237,191 @@ void test_divide() {
   const uint128_win big2 = {.low = 9, .high = 0};
   const uint128_win big_dividend = {.low = 18, .high = 27};
   const uint128_win rem_dividend = {.low = 20, .high = 27};
-  const uint128_win max_res = {.low = UINT64_MAX - 1, .high = UINT64_MAX};
 
-  assert(0 == uint128_win_compare(uint128_win_divide(zero, one, NULL), zero));
-  assert(0 == uint128_win_compare(uint128_win_divide(zero, two, NULL), zero));
-  assert(0 == uint128_win_compare(uint128_win_divide(two, one, NULL), two));
-  assert(0 == uint128_win_compare(uint128_win_divide(two, two, NULL), one));
-  assert(0 == uint128_win_compare(uint128_win_divide(four, two, NULL), two));
-  assert(0 == uint128_win_compare(uint128_win_multiply(big1, big2), big_dividend));
-  assert(0 == uint128_win_compare(uint128_win_divide(big_dividend, big1, NULL), big2));
-  assert(0 == uint128_win_compare(uint128_win_divide(big_dividend, big2, NULL), big1));
-  assert(0 == uint128_win_compare(uint128_win_multiply(max, zero), zero));
-  assert(0 == uint128_win_compare(uint128_win_multiply(max, one), max));
-  assert(0 == uint128_win_compare(uint128_win_multiply(max, two), max_res));
+  int128_assert(0 == uint128_win_compare(uint128_win_divide(zero, one, NULL), zero));
+  int128_assert(0 == uint128_win_compare(uint128_win_divide(zero, two, NULL), zero));
+  int128_assert(0 == uint128_win_compare(uint128_win_divide(two, one, NULL), two));
+  int128_assert(0 == uint128_win_compare(uint128_win_divide(two, two, NULL), one));
+  int128_assert(0 == uint128_win_compare(uint128_win_divide(four, two, NULL), two));
+  int128_assert(0 == uint128_win_compare(uint128_win_multiply(big1, big2), big_dividend));
+  int128_assert(0 == uint128_win_compare(uint128_win_divide(big_dividend, big1, NULL), big2));
+  int128_assert(0 == uint128_win_compare(uint128_win_divide(big_dividend, big2, NULL), big1));
+  int128_assert(0 == uint128_win_compare(uint128_win_divide(max, one, NULL), max));
   uint128_win remainder = zero;
   uint128_win result = uint128_win_divide(rem_dividend, big2, &remainder);
-  assert(0 == uint128_win_compare(result, big1));
-  assert(0 == uint128_win_compare(remainder, two));
+  int128_assert(0 == uint128_win_compare(result, big1));
+  int128_assert(0 == uint128_win_compare(remainder, two));
 }
 
 void test_shift_left() {
   const uint128_win one_127_res = {.low = 0, .high = 9223372036854775808};
 
-  assert(0 == uint128_win_compare(uint128_win_shift_left(zero, 0), zero));
-  assert(0 == uint128_win_compare(uint128_win_shift_left(zero, 1), zero));
-  assert(0 == uint128_win_compare(uint128_win_shift_left(zero, 127), zero));
-  assert(0 == uint128_win_compare(uint128_win_shift_left(one, 0), one));
-  assert(0 == uint128_win_compare(uint128_win_shift_left(one, 1), two));
-  assert(0 == uint128_win_compare(uint128_win_shift_left(one, 2), four));
-  assert(0 == uint128_win_compare(uint128_win_shift_left(one, 64), high_one));
-  assert(0 == uint128_win_compare(uint128_win_shift_left(one, 127), one_127_res));
-  assert(0 == uint128_win_compare(uint128_win_shift_left(max, 64), high_max));
-  assert(0 == uint128_win_compare(uint128_win_shift_left(max, 127), one_127_res));
+  int128_assert(0 == uint128_win_compare(uint128_win_shift_left(zero, 0), zero));
+  int128_assert(0 == uint128_win_compare(uint128_win_shift_left(zero, 1), zero));
+  int128_assert(0 == uint128_win_compare(uint128_win_shift_left(zero, 127), zero));
+  int128_assert(0 == uint128_win_compare(uint128_win_shift_left(one, 0), one));
+  int128_assert(0 == uint128_win_compare(uint128_win_shift_left(one, 1), two));
+  int128_assert(0 == uint128_win_compare(uint128_win_shift_left(one, 2), four));
+  int128_assert(0 == uint128_win_compare(uint128_win_shift_left(one, 64), high_one));
+  int128_assert(0 == uint128_win_compare(uint128_win_shift_left(one, 127), one_127_res));
+  int128_assert(0 == uint128_win_compare(uint128_win_shift_left(max, 64), high_max));
+  int128_assert(0 == uint128_win_compare(uint128_win_shift_left(max, 127), one_127_res));
 }
 
 void test_shift_right() {
   const uint128_win one_127_src = {.low = 0, .high = 9223372036854775808};
 
-  assert(0 == uint128_win_compare(uint128_win_shift_right(zero, 0), zero));
-  assert(0 == uint128_win_compare(uint128_win_shift_right(zero, 1), zero));
-  assert(0 == uint128_win_compare(uint128_win_shift_right(zero, 127), zero));
-  assert(0 == uint128_win_compare(uint128_win_shift_right(one, 0), one));
-  assert(0 == uint128_win_compare(uint128_win_shift_right(one, 1), zero));
-  assert(0 == uint128_win_compare(uint128_win_shift_right(two, 1), one));
-  assert(0 == uint128_win_compare(uint128_win_shift_right(four, 1), two));
-  assert(0 == uint128_win_compare(uint128_win_shift_right(high_one, 64), one));
-  assert(0 == uint128_win_compare(uint128_win_shift_right(one_127_src, 127), one));
-  assert(0 == uint128_win_compare(uint128_win_shift_right(max, 64), low_max));
-  assert(0 == uint128_win_compare(uint128_win_shift_right(max, 127), one));
+  int128_assert(0 == uint128_win_compare(uint128_win_shift_right(zero, 0), zero));
+  int128_assert(0 == uint128_win_compare(uint128_win_shift_right(zero, 1), zero));
+  int128_assert(0 == uint128_win_compare(uint128_win_shift_right(zero, 127), zero));
+  int128_assert(0 == uint128_win_compare(uint128_win_shift_right(one, 0), one));
+  int128_assert(0 == uint128_win_compare(uint128_win_shift_right(one, 1), zero));
+  int128_assert(0 == uint128_win_compare(uint128_win_shift_right(two, 1), one));
+  int128_assert(0 == uint128_win_compare(uint128_win_shift_right(four, 1), two));
+  int128_assert(0 == uint128_win_compare(uint128_win_shift_right(high_one, 64), one));
+  int128_assert(0 == uint128_win_compare(uint128_win_shift_right(one_127_src, 127), one));
+  int128_assert(0 == uint128_win_compare(uint128_win_shift_right(max, 64), low_max));
+  int128_assert(0 == uint128_win_compare(uint128_win_shift_right(max, 127), one));
 }
 
+void test_compare_signed() {
+  int128_win signed_zero = int128_win_create(zero);
+  int128_win signed_one = int128_win_create(one);
+  int128_win minus_one = int128_win_create_negative(one);
+  int128_win signed_low_max = int128_win_create(low_max);
+  int128_win signed_high_one = int128_win_create(high_one);
+  int128_win minus_low_max = int128_win_create_negative(low_max);
+  int128_win minus_high_one = int128_win_create_negative(high_one);
+
+  int128_assert(0 == int128_win_compare(signed_zero, signed_zero));
+  int128_assert(1 == int128_win_compare(signed_one, signed_zero));
+  int128_assert(-1 == int128_win_compare(minus_one, signed_zero));
+  int128_assert(1 == int128_win_compare(signed_high_one, signed_low_max));
+  int128_assert(-1 == int128_win_compare(minus_high_one, minus_low_max));
+}
+
+void test_add_signed() {
+  int128_win signed_zero = int128_win_create(zero);
+  int128_win signed_one = int128_win_create(one);
+  int128_win minus_one = int128_win_create_negative(one);
+  int128_win signed_low_max = int128_win_create(low_max);
+  int128_win signed_high_one = int128_win_create(high_one);
+  int128_win minus_low_max = int128_win_create_negative(low_max);
+  int128_win minus_high_one = int128_win_create_negative(high_one);
+
+  int128_assert(0 == int128_win_compare(int128_win_add(signed_zero, signed_zero), signed_zero));
+  int128_assert(0 == int128_win_compare(int128_win_add(signed_zero, signed_one), signed_one));
+  int128_assert(0 == int128_win_compare(int128_win_add(signed_one, signed_zero), signed_one));
+  int128_assert(0 == int128_win_compare(int128_win_add(signed_one, minus_one), signed_zero));
+  int128_assert(0 == int128_win_compare(int128_win_add(signed_zero, minus_one), minus_one));
+  int128_assert(0 == int128_win_compare(int128_win_add(signed_one, signed_low_max), signed_high_one));
+  int128_assert(0 == int128_win_compare(int128_win_add(signed_high_one, minus_one), signed_low_max));
+  int128_assert(0 == int128_win_compare(int128_win_add(signed_high_one, minus_low_max), signed_one));
+  int128_assert(0 == int128_win_compare(int128_win_add(signed_low_max, minus_high_one), minus_one));
+}
+
+void test_subtract_signed() {
+  int128_win signed_zero = int128_win_create(zero);
+  int128_win signed_one = int128_win_create(one);
+  int128_win minus_one = int128_win_create_negative(one);
+  int128_win signed_two = int128_win_create(two);
+  int128_win minus_two = int128_win_create_negative(two);
+  int128_win signed_low_max = int128_win_create(low_max);
+  int128_win signed_high_one = int128_win_create(high_one);
+  int128_win minus_low_max = int128_win_create_negative(low_max);
+  int128_win minus_high_one = int128_win_create_negative(high_one);
+
+  int128_assert(0 == int128_win_compare(int128_win_subtract(signed_zero, signed_zero), signed_zero));
+  int128_assert(0 == int128_win_compare(int128_win_subtract(signed_zero, signed_one), minus_one));
+  int128_assert(0 == int128_win_compare(int128_win_subtract(signed_one, signed_zero), signed_one));
+  int128_assert(0 == int128_win_compare(int128_win_subtract(signed_one, minus_one), signed_two));
+  int128_assert(0 == int128_win_compare(int128_win_subtract(minus_one, signed_one), minus_two));
+  int128_assert(0 == int128_win_compare(int128_win_subtract(signed_zero, minus_one), signed_one));
+  int128_assert(0 == int128_win_compare(int128_win_subtract(signed_high_one, signed_one), signed_low_max));
+  int128_assert(0 == int128_win_compare(int128_win_subtract(signed_low_max, minus_one), signed_high_one));
+  int128_assert(0 == int128_win_compare(int128_win_subtract(signed_high_one, signed_low_max), signed_one));
+  int128_assert(0 == int128_win_compare(int128_win_subtract(signed_low_max, signed_high_one), minus_one));
+  int128_assert(0 == int128_win_compare(int128_win_subtract(minus_low_max, signed_one), minus_high_one));
+}
+
+void test_multiply_signed() {
+  int128_win signed_zero = int128_win_create(zero);
+  int128_win signed_one = int128_win_create(one);
+  int128_win minus_one = int128_win_create_negative(one);
+  int128_win signed_two = int128_win_create(two);
+  int128_win minus_two = int128_win_create_negative(two);
+  int128_win signed_four = int128_win_create(four);
+  int128_win minus_four = int128_win_create_negative(four);
+  const uint128_win big1 = {.low = 2, .high = 3};
+  int128_win signed_big1 = int128_win_create(big1);
+  int128_win minus_big1 = int128_win_create_negative(big1);
+  const uint128_win big2 = {.low = 5, .high = 7};
+  int128_win signed_big2 = int128_win_create(big2);
+  int128_win minus_big2 = int128_win_create_negative(big2);
+  const uint128_win big_res = {.low = 10, .high = 29};
+  int128_win signed_big_res = int128_win_create(big_res);
+  int128_win minus_big_res = int128_win_create_negative(big_res);
+
+  int128_assert(0 == int128_win_compare(int128_win_multiply(signed_zero, signed_zero), signed_zero));
+  int128_assert(0 == int128_win_compare(int128_win_multiply(signed_one, signed_zero), signed_zero));
+  int128_assert(0 == int128_win_compare(int128_win_multiply(minus_one, signed_zero), signed_zero));
+  int128_assert(0 == int128_win_compare(int128_win_multiply(signed_zero, signed_one), signed_zero));
+  int128_assert(0 == int128_win_compare(int128_win_multiply(signed_one, signed_one), signed_one));
+  int128_assert(0 == int128_win_compare(int128_win_multiply(signed_one, minus_one), minus_one));
+  int128_assert(0 == int128_win_compare(int128_win_multiply(signed_two, signed_one), signed_two));
+  int128_assert(0 == int128_win_compare(int128_win_multiply(signed_two, minus_one), minus_two));
+  int128_assert(0 == int128_win_compare(int128_win_multiply(signed_two, signed_two), signed_four));
+  int128_assert(0 == int128_win_compare(int128_win_multiply(signed_two, minus_two), minus_four));
+  int128_assert(0 == int128_win_compare(int128_win_multiply(minus_two, minus_two), signed_four));
+  int128_assert(0 == int128_win_compare(int128_win_multiply(signed_big1, signed_big2), signed_big_res));
+  int128_assert(0 == int128_win_compare(int128_win_multiply(signed_big1, minus_big2), minus_big_res));
+  int128_assert(0 == int128_win_compare(int128_win_multiply(minus_big1, signed_big2), minus_big_res));
+  int128_assert(0 == int128_win_compare(int128_win_multiply(minus_big1, minus_big2), signed_big_res));
+}
+
+void test_divide_signed() {
+  int128_win signed_zero = int128_win_create(zero);
+  int128_win signed_one = int128_win_create(one);
+  int128_win minus_one = int128_win_create_negative(one);
+  int128_win signed_two = int128_win_create(two);
+  int128_win minus_two = int128_win_create_negative(two);
+  int128_win signed_four = int128_win_create(four);
+  const uint128_win big1 = {.low = 2, .high = 3};
+  int128_win signed_big1 = int128_win_create(big1);
+  int128_win minus_big1 = int128_win_create_negative(big1);
+  const uint128_win big2 = {.low = 9, .high = 0};
+  int128_win signed_big2 = int128_win_create(big2);
+  int128_win minus_big2 = int128_win_create_negative(big2);
+  const uint128_win big_dividend = {.low = 18, .high = 27};
+  int128_win signed_big_dividend = int128_win_create(big_dividend);
+  int128_win minus_big_dividend = int128_win_create_negative(big_dividend);
+  const uint128_win rem_dividend = {.low = 20, .high = 27};
+  int128_win signed_rem_dividend = int128_win_create(rem_dividend);
+  int128_win minus_rem_dividend = int128_win_create_negative(rem_dividend);
+
+  int128_assert(0 == int128_win_compare(int128_win_divide(signed_zero, signed_one, NULL), signed_zero));
+  int128_assert(0 == int128_win_compare(int128_win_divide(signed_zero, minus_one, NULL), signed_zero));
+  int128_assert(0 == int128_win_compare(int128_win_divide(signed_zero, signed_two, NULL), signed_zero));
+  int128_assert(0 == int128_win_compare(int128_win_divide(signed_zero, minus_two, NULL), signed_zero));
+  int128_assert(0 == int128_win_compare(int128_win_divide(signed_two, signed_one, NULL), signed_two));
+  int128_assert(0 == int128_win_compare(int128_win_divide(signed_two, minus_one, NULL), minus_two));
+  int128_assert(0 == int128_win_compare(int128_win_divide(minus_two, signed_one, NULL), minus_two));
+  int128_assert(0 == int128_win_compare(int128_win_divide(minus_two, minus_one, NULL), signed_two));
+  int128_assert(0 == int128_win_compare(int128_win_divide(signed_two, signed_two, NULL), signed_one));
+  int128_assert(0 == int128_win_compare(int128_win_divide(signed_two, minus_two, NULL), minus_one));
+  int128_assert(0 == int128_win_compare(int128_win_divide(signed_four, minus_two, NULL), minus_two));
+  int128_assert(0 == int128_win_compare(int128_win_divide(signed_big_dividend, signed_big1, NULL), signed_big2));
+  int128_assert(0 == int128_win_compare(int128_win_divide(minus_big_dividend, signed_big2, NULL), minus_big1));
+  int128_assert(0 == int128_win_compare(int128_win_divide(signed_big_dividend, minus_big2, NULL), minus_big1));
+  int128_win signed_remainder = signed_zero;
+  int128_win signed_result = int128_win_divide(signed_rem_dividend, signed_big2, &signed_remainder);
+  int128_assert(0 == int128_win_compare(signed_result, signed_big1));
+  int128_assert(0 == int128_win_compare(signed_remainder, signed_two));
+  int128_win minus_remainder = signed_zero;
+  int128_win minus_result = int128_win_divide(minus_rem_dividend, signed_big2, &minus_remainder);
+  int128_assert(0 == int128_win_compare(minus_result, minus_big1));
+  int128_assert(0 == int128_win_compare(minus_remainder, minus_two));
+}
 
 int main() {
 
@@ -297,6 +434,12 @@ int main() {
   test_divide();
   test_shift_left();
   test_shift_right();
+
+  test_compare_signed();
+  test_add_signed();
+  test_subtract_signed();
+  test_multiply_signed();
+  test_divide_signed();
 
   return 0;
 }
