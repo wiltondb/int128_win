@@ -1,4 +1,4 @@
-# Copyright 2023, alex at staticlibs.net
+# Copyright 2023 alex@staticlibs.net
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -20,7 +20,8 @@ enable_testing()
 
 add_executable ( int128_win_test
     test.c
-    uint128_win.h )
+    uint128_win.h
+    int128_win.h )
 
 target_include_directories ( int128_win_test BEFORE PRIVATE 
     ${CMAKE_CURRENT_LIST_DIR} )

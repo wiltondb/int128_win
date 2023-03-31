@@ -1,5 +1,5 @@
 /*
- * Copyright 2023, alex at staticlibs.net
+ * Copyright 2023 alex@staticlibs.net
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -130,6 +130,19 @@ int uint128_win_from_hex(const char* hex_src, uint128_win* value_out) {
   uint128_win res = { .high = high, .low = low };
   *value_out = res;
   return 0;
+}
+
+int128_win int128_win_create(uint128_win value) {
+  uint64_t low = value.low;
+  int64_t high = (int64_t) value.high;
+  return (int128_win) { .low = low, .high = high };
+}
+
+int128_win int128_win_create_negative(uint128_win value) {
+  uint128_win negative = uint128_win_negate(value);
+  uint64_t low = negative.low;
+  int64_t high = (int64_t) negative.high;
+  return (int128_win) { .low = low, .high = high };
 }
 
 void test_from_hex() {

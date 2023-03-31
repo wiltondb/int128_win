@@ -1,5 +1,5 @@
 /*
- * Copyright 2023, alex at staticlibs.net
+ * Copyright 2023 alex@staticlibs.net
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef INT128_WIN_IINT128_WIN_H
-#define INT128_WIN_IINT128_WIN_H
+#ifndef INT128_WIN_INT128_WIN_H
+#define INT128_WIN_INT128_WIN_H
 
 #include "uint128_win.h"
 
@@ -28,6 +28,15 @@ typedef struct int128_win {
   int64_t high;  
 } int128_win;
 
+static inline int128_win int128_win_from_int64(int64_t value) {
+  uint64_t low = (uint64_t) value;
+  int64_t high = 0;
+  if (value < 0) {
+    high = ~((int64_t) 0);
+  }
+  return (int128_win) { .low = low, .high = high };
+}
+
 static inline int64_t int128_win_bitcast_to_signed(uint64_t value) {
   // Casting an unsigned integer to a signed integer of the same
   // width is implementation defined behavior if the source value would not fit
@@ -39,31 +48,6 @@ static inline int64_t int128_win_bitcast_to_signed(uint64_t value) {
   } else {
     return (int64_t) value;
   }
-}
-
-static inline int128_win int128_win_negate(int128_win value) {
-  uint64_t low = (~value.low) + 1;
-  int64_t high = (~value.high) + (unsigned long)(value.low == 0);
-  return (int128_win) { .low = low, .high = high };
-}
-
-static inline uint128_win uint128_win_negate(uint128_win value) {
-  uint64_t low = (~value.low) + 1;
-  uint64_t high = (~value.high) + (unsigned long)(value.low == 0);
-  return (uint128_win) { .low = low, .high = high };
-}
-
-static inline int128_win int128_win_create(uint128_win value) {
-  uint64_t low = value.low;
-  int64_t high = (int64_t) value.high;
-  return (int128_win) { .low = low, .high = high };
-}
-
-static inline int128_win int128_win_create_negative(uint128_win value) {
-  uint64_t low = value.low;
-  int64_t high = (int64_t) value.high;
-  int128_win positive = { .low = low, .high = high };
-  return int128_win_negate(positive);
 }
 
 static inline int int128_win_compare(int128_win left, int128_win right) {
@@ -100,7 +84,6 @@ static inline int128_win int128_win_subtract(int128_win left, int128_win right) 
   return (int128_win) { .low = low, .high = high };
 }
 
-
 static inline int128_win int128_win_multiply(int128_win left, int128_win right) {
   uint128_win uleft = { .low = left.low, .high = (uint64_t) left.high };
   uint128_win uright = { .low = right.low, .high = (uint64_t) right.high };
@@ -108,6 +91,12 @@ static inline int128_win int128_win_multiply(int128_win left, int128_win right) 
   uint64_t low = ures.low;
   int64_t high = int128_win_bitcast_to_signed(ures.high);
   return (int128_win) { .low = low, .high = high };
+}
+
+static inline uint128_win uint128_win_negate(uint128_win value) {
+  uint64_t low = (~value.low) + 1;
+  uint64_t high = (~value.high) + (unsigned long)(value.low == 0);
+  return (uint128_win) { .low = low, .high = high };
 }
 
 static inline uint128_win int128_win_unsigned_absolute_value(int128_win value) {
@@ -146,4 +135,4 @@ static inline int128_win int128_win_divide(int128_win dividend, int128_win divis
 }
 #endif
 
-#endif // INT128_WIN_UINT128_WIN_H
+#endif // INT128_WIN_INT128_WIN_H
